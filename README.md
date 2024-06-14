@@ -3,6 +3,9 @@ The project consists of several microservices (made in C#, Python, Go and Typesc
 
 RabbitMQ will be used for inter-service communication and orchestration, while Cassandra and MongoDB will be used for distributed data storage.
 
+![E-Commerce Microservices drawio (1)](https://github.com/maiconghidolin/E-Commerce-Microservices/assets/2272948/27555d9d-a259-44a1-8c8d-bfe55b1e0ca9)
+
+
 ## Microservices
 
 ### User Service
