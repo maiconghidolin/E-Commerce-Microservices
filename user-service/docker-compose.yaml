@@ -1,4 +1,4 @@
-version: '3'  
+version: "3"
 
 services:
   cassandra:
@@ -12,5 +12,22 @@ services:
     volumes:
       - cassandra-data:/var/lib/cassandra
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: "rabbitmq"
+    hostname: qsearchmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - rabbitmq_go_net
+
 volumes:
   cassandra-data:
+  rabbitmq-data:
+
+networks:
+  rabbitmq_go_net:
+    driver: bridge

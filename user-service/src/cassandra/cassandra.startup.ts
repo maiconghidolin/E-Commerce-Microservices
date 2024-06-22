@@ -48,7 +48,8 @@ export class CassandraStartup implements OnApplicationBootstrap {
         role TEXT,
         created_at TIMESTAMP,
         updated_at TIMESTAMP,
-        deleted_at TIMESTAMP
+        deleted_at TIMESTAMP,
+        deleted BOOLEAN
       );
     `;
 

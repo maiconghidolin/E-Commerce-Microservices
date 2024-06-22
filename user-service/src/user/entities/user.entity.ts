@@ -7,4 +7,5 @@ export class User {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
+  deleted: boolean;
 }

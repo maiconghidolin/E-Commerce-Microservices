@@ -4,10 +4,14 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { CassandraService } from "src/cassandra/cassandra.service";
 import { User } from "./entities/user.entity";
+import { ProducerService } from "src/queues/queue.producer";
 
 @Injectable()
 export class UserService implements OnModuleInit {
-  constructor(private cassandraService: CassandraService) {}
+  constructor(
+    private cassandraService: CassandraService,
+    private producerService: ProducerService,
+  ) {}
 
   userMapper: mapping.ModelMapper<User>;
 
@@ -29,8 +33,6 @@ export class UserService implements OnModuleInit {
   }
 
   async create(createUserDto: CreateUserDto) {
-    // buscar por email
-
     await this.userMapper.insert({
       id: crypto.randomUUID(),
       name: createUserDto.name,
@@ -39,14 +41,19 @@ export class UserService implements OnModuleInit {
       role: createUserDto.role,
       created_at: new Date(),
       updated_at: new Date(),
+      deleted: false,
     });
 
     console.log("User created");
+
+    await this.producerService.addToNotificationQueue(createUserDto);
+
+    console.log("Notification sended");
   }
 
   async findAll() {
     const query =
-      "SELECT * FROM userdb.user WHERE deleted_at='NULL' ALLOW FILTERING";
+      "SELECT * FROM userdb.user WHERE deleted=false ALLOW FILTERING";
 
     const results = await this.userMapper.mapWithQuery(query, () => [])([]);
     return results.toArray();
@@ -54,6 +61,29 @@ export class UserService implements OnModuleInit {
 
   async findOne(id: string) {
     return await this.userMapper.get({ id });
+  }
+
+  async emailAlreadyExists(email: string): Promise<boolean> {
+    const query =
+      "SELECT * FROM userdb.user WHERE email = :email ALLOW FILTERING";
+
+    const results = await this.userMapper.mapWithQuery(query, (params) => [
+      params.email,
+    ])({ email: email });
+
+    return results.toArray().length > 0;
+  }
+
+  async getByEmailAndPassword(email: string, password: string): Promise<User> {
+    const query =
+      "SELECT * FROM userdb.user WHERE email = :email AND password = :password ALLOW FILTERING";
+
+    const results = await this.userMapper.mapWithQuery(query, (params) => [
+      params.email,
+      params.password,
+    ])({ email: email, password: password });
+
+    return results.first();
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -75,6 +105,7 @@ export class UserService implements OnModuleInit {
     await this.userMapper.update({
       id,
       deleted_at: new Date(),
+      deleted: true,
     });
   }
 }
