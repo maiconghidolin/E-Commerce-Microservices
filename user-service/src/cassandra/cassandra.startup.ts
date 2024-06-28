@@ -46,6 +46,8 @@ export class CassandraStartup implements OnApplicationBootstrap {
         email TEXT,
         password TEXT,
         role TEXT,
+        number TEXT,
+        deviceId TEXT,
         created_at TIMESTAMP,
         updated_at TIMESTAMP,
         deleted_at TIMESTAMP,

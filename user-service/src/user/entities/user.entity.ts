@@ -4,6 +4,8 @@ export class User {
   email: string;
   password: string;
   role: string;
+  number: string;
+  deviceId: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

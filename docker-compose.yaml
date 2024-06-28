@@ -1,0 +1,49 @@
+version: "3"
+
+services:
+    cassandra-users:
+        image: cassandra:latest
+        container_name: users-cassandra-container
+        ports:
+            - "9042:9042"
+        environment:
+            - CASSANDRA_USER=admin
+            - CASSANDRA_PASSWORD=admin
+        volumes:
+            - cassandra-users-data:/var/lib/cassandra
+
+    mongo-notifications:
+        image: mongo:latest
+        container_name: notifications-mongodb-container
+        command: mongod --auth --bind_ip_all
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongo-notifications-data:/data/db
+            - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+        environment:
+            MONGO_INITDB_DATABASE: NotificationsDB
+            MONGO_INITDB_ROOT_USERNAME: admin
+            MONGO_INITDB_ROOT_PASSWORD: Test123!
+
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        container_name: "rabbitmq"
+        hostname: qsearchmq
+        ports:
+            - 5672:5672
+            - 15672:15672
+        volumes:
+            - rabbitmq-data:/var/lib/rabbitmq
+        networks:
+            - rabbitmq_go_net
+
+volumes:
+    cassandra-users-data:
+    mongo-notifications-data:
+        driver: local
+    rabbitmq-data:
+
+networks:
+    rabbitmq_go_net:
+        driver: bridge

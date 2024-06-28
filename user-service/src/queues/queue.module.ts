@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { ProducerService } from "./queue.producer";
+import { UserProducerService } from "./user-exchange.producer";
 
 @Module({
-  providers: [ProducerService],
-  exports: [ProducerService],
+  providers: [UserProducerService],
+  exports: [UserProducerService],
 })
 export class QueueModule {}

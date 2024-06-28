@@ -4,13 +4,13 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { CassandraService } from "src/cassandra/cassandra.service";
 import { User } from "./entities/user.entity";
-import { ProducerService } from "src/queues/queue.producer";
+import { UserProducerService } from "src/queues/user-exchange.producer";
 
 @Injectable()
 export class UserService implements OnModuleInit {
   constructor(
     private cassandraService: CassandraService,
-    private producerService: ProducerService,
+    private userProducerService: UserProducerService,
   ) {}
 
   userMapper: mapping.ModelMapper<User>;
@@ -33,20 +33,24 @@ export class UserService implements OnModuleInit {
   }
 
   async create(createUserDto: CreateUserDto) {
-    await this.userMapper.insert({
+    let user = {
       id: crypto.randomUUID(),
       name: createUserDto.name,
       email: createUserDto.email,
       password: createUserDto.password,
       role: createUserDto.role,
+      number: createUserDto.number,
+      deviceId: createUserDto.deviceId,
       created_at: new Date(),
       updated_at: new Date(),
       deleted: false,
-    });
+    };
+
+    await this.userMapper.insert(user);
 
     console.log("User created");
 
-    await this.producerService.addToNotificationQueue(createUserDto);
+    await this.userProducerService.publish("user.created", user);
 
     console.log("Notification sended");
   }
@@ -95,6 +99,8 @@ export class UserService implements OnModuleInit {
       email: updateUserDto.email ?? user.email,
       password: updateUserDto.password ?? user.password,
       role: updateUserDto.role ?? user.role,
+      number: updateUserDto.number ?? user.number,
+      deviceId: updateUserDto.deviceId ?? user.deviceId,
       updated_at: new Date(),
     });
 

@@ -25,4 +25,10 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   role: string;
+
+  @IsString()
+  number: string;
+
+  @IsString()
+  deviceId: string;
 }
