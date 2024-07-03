@@ -1,3 +1,6 @@
 ﻿notification-service/NotificationService/.vs
 notification-service/NotificationService/obj
 notification-service/NotificationService/bin
+.vs
+bin/
+obj/
